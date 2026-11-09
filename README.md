@@ -1,14 +1,44 @@
 # RS41ng-wx-menu
 
-Modificación del firmware RS41ng de Mikael Nousiainen (OH3BHX)
-https://github.com/mikaelnousiainen/RS41ng
+Firmware para reutilizar radiosondas meteorológicas **Vaisala RS41-SGP (RSM4x4)** como **baliza APRS en UHF** y **estación meteorológica**, con un **menú de configuración por puerto serie**.
 
-Cambios respecto al original:
-- Configuración para APRS meteorológico (HAMCALL-13) en 432,500 MHz con BME280.
-- Menú de configuración por puerto serie (ver más abajo): indicativo, SSID, frecuencia, intervalo, comentario, ruta de digipetidores, modo (estación meteo / tracker), protocolo (APRS / WSPR), potencia y dirección del sensor, guardados en la flash.
+Es una modificación del firmware [RS41ng](https://github.com/mikaelnousiainen/RS41ng) de Mikael Nousiainen (OH3BHX), que mantiene su licencia (véase `LICENSE.md`). Mantenido por EA7KE.
 
-Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412), con el menú serie y la transmisión APRS meteo verificados.
-Este proyecto mantiene la licencia del original; véase LICENSE.
+## Qué hace
+
+- Transmite por APRS (1200 baud) en 432,500 MHz (segmento UHF europeo), con el indicativo y el SSID que elijas (por defecto, `EA7KE-13`).
+- Dos modos: **estación meteo** (temperatura, humedad y presión con un BME280 externo) o **tracker** (posición GPS).
+- Se configura sin recompilar: indicativo, SSID, frecuencia, intervalo, comentario, ruta de digipetidores, potencia y sensor, mediante un menú serie. Los valores quedan guardados en la flash de la sonda.
+- WSPR en HF opcional, solo con un sintetizador Si5351 externo.
+
+Estado: la transmisión APRS meteo y el menú serie están probados en hardware RSM4x4 (recepción en un Yaesu FT3D).
+
+> Aviso: usa la sonda solo con licencia de radioaficionado y respetando el plan de bandas de tu país. Las radiosondas recogidas son material de la AEMET u otros organismos; asegúrate de poder reutilizarlas.
+
+## Qué necesitas
+
+- Una radiosonda Vaisala RS41-SGP con placa RSM4x4 (microcontrolador STM32L412).
+- Un programador **ST-Link V2** y la herramienta OpenOCD (Windows: xPack OpenOCD).
+- Un adaptador **USB-serie de 3,3 V** (CH340, CP2102, FTDI...) para el menú.
+- Opcional: un sensor **BME280** (I2C, dirección 0x76 o 0x77) para la estación meteo.
+- Para compilar: Docker Desktop y Git.
+
+## Conexión al conector de 10 pines
+
+Los pines 2 y 3 del conector se usan para dos cosas distintas, nunca a la vez:
+
+| Pin | Señal en la sonda | Menú serie (adaptador) | Sensor BME280 |
+|---|---|---|---|
+| 2 | PB11 (RX del puerto serie / SDA) | TX del adaptador | SDA |
+| 3 | PB10 (TX del puerto serie / SCL) | RX del adaptador | SCL |
+
+Además se necesita GND común. El menú solo está activo en los 15 s posteriores al arranque; después esos pines pasan a funcionar como bus I2C para el sensor. Desconecta el adaptador serie cuando conectes el BME280. Si el menú no responde, prueba a cruzar TX y RX.
+
+## Inicio rápido
+
+1. **Desbloquear la sonda** (primera vez): quitar la protección de lectura con OpenOCD (ver el procedimiento del README original, más abajo).
+2. **Compilar y flashear** (sección siguiente).
+3. **Configurar**: conectar el adaptador serie, abrir un terminal a 9600 baudios, reiniciar la sonda y pulsar ENTER en los primeros 15 s. Usa `SET ...`, `SAVE` y `EXIT` (comandos más abajo).
 
 ## Compilar y flashear (Windows, RSM4x4)
 
@@ -64,6 +94,11 @@ Notas:
 - Esta versión no está integrada con el configurador web ni con `config.yaml`: los valores por defecto se cambian en `src/config.h`.
 - El código de la lógica (`runtime_config.c`, `runtime_menu.c`) se prueba en el PC: `cmake -S tests -B build-tests && cmake --build build-tests && ctest --test-dir build-tests`.
 
+---
+
+# Documentación original de RS41ng (en inglés)
+
+Lo que sigue es el README del proyecto original de Mikael Nousiainen, sin modificar. Describe todas las opciones del firmware, el desbloqueo de la sonda, la compilación y otros modos de transmisión.
 
 # RS41ng - Amateur radio firmware for Vaisala RS41 and Graw DFM-17 radiosondes
 
