@@ -5,10 +5,65 @@ https://github.com/mikaelnousiainen/RS41ng
 
 Cambios respecto al original:
 - Configuración para APRS meteorológico (HAMCALL-13) en 432,500 MHz con BME280.
-- En desarrollo: menú de configuración por puerto serie.
+- Menú de configuración por puerto serie (ver más abajo): indicativo, SSID, frecuencia, intervalo, comentario, ruta de digipetidores, modo (estación meteo / tracker), protocolo (APRS / WSPR), potencia y dirección del sensor, guardados en la flash.
 
-Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412).
+Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412), con el menú serie y la transmisión APRS meteo verificados.
 Este proyecto mantiene la licencia del original; véase LICENSE.
+
+## Compilar y flashear (Windows, RSM4x4)
+
+Requisitos: Docker Desktop en marcha, imagen `rs41ng_compiler` (`docker build -t rs41ng_compiler .` una sola vez), programador ST-Link V2 y OpenOCD. La sonda debe tener la protección de lectura (RDP) desactivada; véase la sección de desbloqueo del README original más abajo.
+
+Compilar con la configuración de `src/config.h` (en PowerShell, desde la carpeta del proyecto). Se llama a Docker directamente porque `build-firmware.bat` parte el argumento `-DRS41_RSM4X4=1` por el signo `=`:
+
+```powershell
+docker run --rm -it -v "${PWD}:/usr/local/src/RS41ng" -e "CONFIG_FILE=config.yaml" rs41ng_compiler "-DRS41_RSM4X4=1"
+```
+
+Si no existe `config.yaml`, se usa `config.h`/`config.c`. El resultado es `build/src/RS41ng.elf`. Los scripts `.sh` deben tener finales de línea LF (`git config core.autocrlf false`).
+
+Flashear:
+
+```powershell
+openocd -f interface/stlink.cfg -f target/stm32l4x.cfg -c "program build/src/RS41ng.elf verify reset exit"
+```
+
+Estado: la transmisión APRS meteo y el menú serie (configuración, guardado en flash y recepción en un FT3D) están probados en hardware RSM4x4.
+
+## Menú de configuración por puerto serie (wx-serial-menu)
+
+Solo para la placa RSM4x4 (STM32L412). Al arrancar, el firmware abre una **ventana de 15 s** por el puerto serie; si no llega ningún byte, arranca con la configuración guardada (o con los valores de `config.h` si no hay nada guardado). Cualquier carácter recibido reinicia el temporizador hasta que se escribe `EXIT`.
+
+**Conexión** (adaptador USB-serie de 3,3 V, 9600 8N1): TX del adaptador → pin 2 del conector, RX del adaptador → pin 3, GND común. Los pines 2 y 3 son los mismos que usa el bus I2C del sensor BME280 (PB11/PB10): el menú solo ocupa esos pines durante la ventana y los devuelve al I2C después. Para entrar, conecta el adaptador, abre el terminal (sin sensor o con el adaptador de alta impedancia), reinicia la sonda y pulsa ENTER antes de que pasen 15 s.
+
+| Comando | Descripción |
+|---|---|
+| `HELP` | lista de comandos |
+| `SHOW` | muestra los valores actuales |
+| `SET CALL <indicativo[-ssid]>` | indicativo (1–6 caracteres), p. ej. `EA7KE` o `EA7KE-13` |
+| `SET SSID <0-15>` | SSID APRS (13 = estación meteo) |
+| `SET FREQ <MHz>` | frecuencia APRS, 430.000–440.000 |
+| `SET INTERVAL <s>` | intervalo de envío, 30–3600 s (sincronizado con la hora GPS) |
+| `SET COMMENT <texto>` | comentario APRS, máx. 60 caracteres |
+| `SET PATH <ruta\|NONE>` | ruta de digipetidores, p. ej. `WIDE1-1,WIDE2-1` |
+| `SET MODE <WX\|TRACKER>` | estación meteorológica o tracker de posición |
+| `SET PROTO <APRS\|WSPR\|BOTH>` | protocolo (WSPR necesita un Si5351 externo, ver abajo) |
+| `SET POWER <0-7>` | potencia del Si4032 (5 ≈ 25 mW) |
+| `SET SENSOR <OFF\|0x76\|0x77>` | sensor BME280/BMP280 externo |
+| `SET WSPRFREQ <MHz>` | frecuencia WSPR (solo bandas de HF de aficionado) |
+| `SET WSPRDBM <0-60>` | potencia WSPR indicada en el mensaje |
+| `SET LOCATOR <AA00\|GPS>` | locator WSPR fijo o tomado del GPS |
+| `DEFAULTS` | carga los valores de fábrica (`config.h`) |
+| `SAVE` | guarda en flash (última página de 2 KB) |
+| `EXIT` | arranca; lo no guardado solo vale para ese arranque |
+
+Notas:
+- **WSPR** no se puede generar con el transmisor interno (Si4032, solo UHF/VHF): requiere un sintetizador **Si5351** externo en el bus I2C (HF). Sin él, usa `SET PROTO APRS`.
+- Los valores se validan antes de aceptarse; si la flash está vacía o corrupta (CRC), se usan los valores de `config.h`.
+- Con `SENSOR OFF` en modo `WX`, los paquetes meteo se envían con datos vacíos.
+- Esta versión no está integrada con el configurador web ni con `config.yaml`: los valores por defecto se cambian en `src/config.h`.
+- El código de la lógica (`runtime_config.c`, `runtime_menu.c`) se prueba en el PC: `cmake -S tests -B build-tests && cmake --build build-tests && ctest --test-dir build-tests`.
+
 
 # RS41ng - Amateur radio firmware for Vaisala RS41 and Graw DFM-17 radiosondes
 

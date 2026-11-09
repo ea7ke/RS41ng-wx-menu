@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "strlcpy.h"
 #include "template.h"
+#include "config.h"
+#include "runtime_config.h"
 #include "codecs/aprs/aprs.h"
 
 int main(void)
@@ -10,6 +12,11 @@ int main(void)
     char *source = "DE $cs: $bv $loc6, $hh:$mm:$ss, $tow, Ti$ti Te$te $hu $pr";
     char dest[512];
     telemetry_data data;
+
+    // $cs comes from the run-time configuration (factory defaults here)
+    runtime_config rt_defaults;
+    runtime_config_defaults(&rt_defaults);
+    runtime_config_apply(&rt_defaults);
 
     data.battery_voltage_millivolts = 3247;
     data.internal_temperature_celsius_100 = -7 * 100;
@@ -27,7 +34,9 @@ int main(void)
 
     printf("%s\n", dest);
 
-    assert(strcmp(dest, "DE 4FSKTEST: 3247 KP21FA, 18:33:51, 110022330, Ti-7 Te24 68 1023") == 0);
+    char expected[128];
+    snprintf(expected, sizeof(expected), "DE %s: 3247 KP21FA, 18:33:51, 110022330, Ti-7 Te24 68 1023", CALLSIGN);
+    assert(strcmp(dest, expected) == 0);
 
     // $apc reads the shared global APRS packet counter
     aprs_packet_counter = 1234;

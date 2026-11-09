@@ -48,6 +48,7 @@
 
 #include <stdlib.h>
 #include "config.h"
+#include "runtime_config.h"
 
 // Build-time notice that the built-in manual configuration is in effect. This file
 // is compiled only when no generated config is present (see src/CMakeLists.txt), so
@@ -83,15 +84,12 @@ char *pip_message_templates[] = {
  * APRS mode comment messages.
  * Maximum length: depends on the packet contents, but keeping this under 100 characters is usually safe.
  * Note that many hardware APRS receivers show a limited number of APRS comment characters, such as 43 or 67 chars.
+ *
+ * wx-serial-menu modification: the comment comes from the run-time configuration (runtime_config.c),
+ * whose factory default is APRS_COMMENT.
  */
 char *aprs_comment_templates[] = {
-//        " B$bu $teC $hu% $prmb $hh:$mm:$ss @ $tow ms - " APRS_COMMENT,
-//        " B$bu $teC $hu% $prmb - " APRS_COMMENT,
-//        " B$bu $loc12 $hh:$mm:$ss - " APRS_COMMENT,
-//        " $loc12 - " APRS_COMMENT,
-//        " $teC $hu% $prmb PC $pc RI $ri uR/h - " APRS_COMMENT,
-        // "/P$apcS$svT$tiV$bvC$clA$bu " APRS_COMMENT,
-        " " APRS_COMMENT,
+        rt_aprs_comment_template,
         NULL
 };
 

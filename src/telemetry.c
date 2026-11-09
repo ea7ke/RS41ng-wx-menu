@@ -8,6 +8,7 @@
 #include "radsens_handler.h"
 #include "locator.h"
 #include "config.h"
+#include "runtime_config.h"
 #include "log.h"
 
 #ifdef RS41
@@ -50,7 +51,9 @@ void telemetry_collect(telemetry_data *data)
 #endif
 
 #if SENSOR_BMP280_ENABLE
-    bmp280_read_telemetry(data);
+    if (rt_config.sensor_enabled) {
+        bmp280_read_telemetry(data);
+    }
 #endif
 
 #if SENSOR_BME68X_ENABLE
