@@ -1,3 +1,15 @@
+# RS41ng-wx-menu
+
+Modificación del firmware RS41ng de Mikael Nousiainen (OH3BHX)
+https://github.com/mikaelnousiainen/RS41ng
+
+Cambios respecto al original:
+- Configuración para APRS meteorológico (HAMCALL-13) en 432,500 MHz con BME280.
+- En desarrollo: menú de configuración por puerto serie.
+
+Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412).
+Este proyecto mantiene la licencia del original; véase LICENSE.
+
 # RS41ng - Amateur radio firmware for Vaisala RS41 and Graw DFM-17 radiosondes
 
 RS41ng supports 3 models of Radiosondes. The Vaisala RS41 4x2 and Graw DFM-17 (both based on the STM32F1 processor), and the Vaisala 4x4 (newer version based on the STM32L4 processor).
