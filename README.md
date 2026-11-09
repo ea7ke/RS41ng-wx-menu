@@ -7,7 +7,7 @@ Cambios respecto al original:
 - Configuración para APRS meteorológico (HAMCALL-13) en 432,500 MHz con BME280.
 - Menú de configuración por puerto serie (ver más abajo): indicativo, SSID, frecuencia, intervalo, comentario, ruta de digipetidores, modo (estación meteo / tracker), protocolo (APRS / WSPR), potencia y dirección del sensor, guardados en la flash.
 
-Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412).
+Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412), con el menú serie y la transmisión APRS meteo verificados.
 Este proyecto mantiene la licencia del original; véase LICENSE.
 
 ## Compilar y flashear (Windows, RSM4x4)
@@ -28,7 +28,7 @@ Flashear:
 openocd -f interface/stlink.cfg -f target/stm32l4x.cfg -c "program build/src/RS41ng.elf verify reset exit"
 ```
 
-Estado: la transmisión APRS meteo está probada en hardware; el menú serie está pendiente de probar.
+Estado: la transmisión APRS meteo y el menú serie (configuración, guardado en flash y recepción en un FT3D) están probados en hardware RSM4x4.
 
 ## Menú de configuración por puerto serie (wx-serial-menu)
 
