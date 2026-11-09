@@ -18,7 +18,7 @@
  */
 
 // Set the tracker amateur radio call sign here.  Note, if you want a SSID or SUFFIX, those are added by separate defines below.
-#define CALLSIGN "4FSKTEST"
+#define CALLSIGN "EA7KE"
 
 // Delay after transmission for modes that do not use time synchronization. Zero delay allows continuous transmit mode for Horus Binary. Max value: 200000 milliseconds or 200 seconds
 #define RADIO_POST_TRANSMIT_DELAY_MS 500
@@ -31,13 +31,13 @@
 #define RADIO_TX_CW_COUNT 1
 #define RADIO_TX_PIP false
 #define RADIO_TX_PIP_COUNT 1
-#define RADIO_TX_APRS false
+#define RADIO_TX_APRS true
 #define RADIO_TX_APRS_COUNT 1
 #define RADIO_TX_APRS_9600 false
 #define RADIO_TX_APRS_9600_COUNT 1
 #define RADIO_TX_HORUS_V2 false
 #define RADIO_TX_HORUS_V2_COUNT 1
-#define RADIO_TX_HORUS_V3 true
+#define RADIO_TX_HORUS_V3 false
 #define RADIO_TX_HORUS_V3_COUNT 5
 #define RADIO_TX_CATS false
 #define RADIO_TX_CATS_COUNT 1
@@ -62,7 +62,7 @@
 
 // Enable this setting to require a GPS fix before transmitting after power-on. If GPS fix has already been established, losing lock will
 // not prevent the radio from transmitting
-#define RADIO_TX_WAIT_FOR_GPS_LOCK false
+#define RADIO_TX_WAIT_FOR_GPS_LOCK true
 
 // Fox Mode -- disables GPS and follows transmit scheme above
 // Use RADIO_POST_TRANSMIT_DELAY_MS to define wait periods between transmissions
@@ -241,23 +241,23 @@ Setting, measured RF output power, relative DC power draw
  */
 
 #define APRS_CALLSIGN CALLSIGN
-#define APRS_SSID 'B'
+#define APRS_SSID 'D'
 // See APRS symbol table documentation in: http://www.aprs.org/symbols/symbolsX.txt
 #define APRS_SYMBOL_TABLE '/' // '/' denotes primary and '\\' denotes alternate APRS symbol table
 #define APRS_SYMBOL 'O'
 // Maximum length: depends on the packet contents, but keeping this under 100 characters is usually safe.
 // Note that many hardware APRS receivers show a limited number of APRS comment characters, such as 43 or 67 chars.
 // The max APRS packet length (including all settings below) cannot exceed 192 characters. 
-#define APRS_COMMENT "https://amateur.sondehub.org/" CALLSIGN
+#define APRS_COMMENT "WX-RS41"
 #define APRS_RELAYS "" // No spaces. This is where you can define "WIDE1-1,WIDE2-1" etc, but it is highly discouraged for balloons.
 #define APRS_DESTINATION "APZ41N"
 #define APRS_DESTINATION_SSID '0'
 // Generate an APRS weather report instead of a position report. This will override the APRS symbol with the weather station symbol.
-#define APRS_WEATHER_REPORT_ENABLE false
+#define APRS_WEATHER_REPORT_ENABLE true
 
 // Schedule transmission every N seconds, counting from beginning of an hour (based on GPS time). Set to zero to disable time sync.
 // See the README file for more detailed documentation about time sync and its offset setting
-#define APRS_TIME_SYNC_SECONDS 0
+#define APRS_TIME_SYNC_SECONDS 300
 #define APRS_9600_TIME_SYNC_SECONDS 0
 // Delay transmission for an N second offset, counting from the scheduled time set with TIME_SYNC_SECONDS.
 #define APRS_TIME_SYNC_OFFSET_SECONDS 0
@@ -398,7 +398,7 @@ Setting, measured RF output power, relative DC power draw
 
 // Enable use of an externally connected I²C BMP280/BME280 atmospheric sensor
 // NOTE: Only BME280 sensors will report humidity. For BMP280 humidity readings will be zero.
-#define SENSOR_BMP280_ENABLE false
+#define SENSOR_BMP280_ENABLE true
 // BMP280/BME280 I²C device address is usually 0x76 or 0x77.
 #define SENSOR_BMP280_I2C_ADDRESS 0x77
 
