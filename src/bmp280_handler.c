@@ -1,6 +1,7 @@
 #include "drivers/bmp280/bmp280.h"
 #include "bmp280_handler.h"
 #include "log.h"
+#include "runtime_config.h"
 
 bmp280 bmp280_dev;
 
@@ -9,7 +10,7 @@ static bool bmp280_initialization_required = true;
 bool bmp280_handler_init()
 {
     bmp280_dev.port = &DEFAULT_I2C_PORT;
-    bmp280_dev.addr = SENSOR_BMP280_I2C_ADDRESS;
+    bmp280_dev.addr = rt_config.sensor_address;
 
     bmp280_params_t bmp280_params = {
             .mode = BMP280_MODE_NORMAL,

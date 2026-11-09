@@ -15,6 +15,7 @@
 #include "radio.h"
 #include "landed.h"
 #include "config.h"
+#include "runtime_config.h"
 #include "log.h"
 
 #ifdef RS41
@@ -163,6 +164,10 @@ int main(void)
     //log_info("System init\n");
     system_init();
 
+    // Load the run-time configuration and offer the serial menu (wx-serial-menu modification).
+    // Must run before i2c_init(): the menu UART shares PB10/PB11 with the I2C bus.
+    runtime_config_boot();
+
     set_green_led(true);
     set_red_led(false);
 
@@ -224,17 +229,19 @@ int main(void)
 #endif
 
 #if SENSOR_BMP280_ENABLE
-    for (int i = 0; i < 3; i++) {
-        log_info("BMP280 init\n");
-        success = bmp280_handler_init();
-        if (success) {
-            break;
+    if (rt_config.sensor_enabled) {
+        for (int i = 0; i < 3; i++) {
+            log_info("BMP280 init\n");
+            success = bmp280_handler_init();
+            if (success) {
+                break;
+            }
+            log_error("BMP280 init failed, retrying...\n");
         }
-        log_error("BMP280 init failed, retrying...\n");
-    }
-    if (!success) {
-        set_red_led(true);
-        set_error_code(ERROR_BMP280_INIT);
+        if (!success) {
+            set_red_led(true);
+            set_error_code(ERROR_BMP280_INIT);
+        }
     }
 #endif
 
@@ -284,17 +291,20 @@ int main(void)
 #endif
 
 #if RADIO_SI5351_ENABLE
-    for (int i = 0; i < 3; i++) {
-        log_info("Si5351 init\n");
-        success = si5351_handler_init();
-        if (success) {
-            break;
+    // With APRS only there is no need for the external Si5351 (HF) synthesiser
+    if (rt_config.protocol != RT_PROTOCOL_APRS) {
+        for (int i = 0; i < 3; i++) {
+            log_info("Si5351 init\n");
+            success = si5351_handler_init();
+            if (success) {
+                break;
+            }
+            log_error("Si5351 init failed, retrying...\n");
         }
-        log_error("Si5351 init failed, retrying...\n");
-    }
-    if (!success) {
-        set_red_led(true);
-        set_error_code(ERROR_SI5351_INIT);
+        if (!success) {
+            set_red_led(true);
+            set_error_code(ERROR_SI5351_INIT);
+        }
     }
 #endif
 

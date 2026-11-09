@@ -241,7 +241,7 @@ Setting, measured RF output power, relative DC power draw
  */
 
 #define APRS_CALLSIGN CALLSIGN
-#define APRS_SSID 'D'
+#define APRS_SSID 'D'  // -13: weather station
 // See APRS symbol table documentation in: http://www.aprs.org/symbols/symbolsX.txt
 #define APRS_SYMBOL_TABLE '/' // '/' denotes primary and '\\' denotes alternate APRS symbol table
 #define APRS_SYMBOL 'O'
@@ -454,7 +454,7 @@ Setting, measured RF output power, relative DC power draw
  */
 
 // Enable use of an externally connected I²C Si5351 clock generator chip for HF radio transmissions
-#define RADIO_SI5351_ENABLE false
+#define RADIO_SI5351_ENABLE true
 
 // Si5351 transmit power: 0..3
 // Si5351 drive strength: 0 = 2mA, 1 = 4mA, 2 = 6mA, 3 = 8mA
@@ -462,13 +462,13 @@ Setting, measured RF output power, relative DC power draw
 
 // Which modes to transmit using an externally connected Si5351 chip in the I²C bus
 // The COUNT settings define the number of times that each type of transmission is repeated
-#define RADIO_SI5351_TX_CW true
+#define RADIO_SI5351_TX_CW false
 #define RADIO_SI5351_TX_CW_COUNT 1
 #define RADIO_SI5351_TX_PIP false
 #define RADIO_SI5351_TX_PIP_COUNT 6
 #define RADIO_SI5351_TX_HORUS_V2 false
 #define RADIO_SI5351_TX_HORUS_V2_COUNT 4
-#define RADIO_SI5351_TX_HORUS_V3 true
+#define RADIO_SI5351_TX_HORUS_V3 false
 #define RADIO_SI5351_TX_HORUS_V3_COUNT 4
 #define RADIO_SI5351_TX_JT9 false
 #define RADIO_SI5351_TX_JT9_COUNT 1
@@ -476,7 +476,7 @@ Setting, measured RF output power, relative DC power draw
 #define RADIO_SI5351_TX_JT65_COUNT 1
 #define RADIO_SI5351_TX_JT4 false
 #define RADIO_SI5351_TX_JT4_COUNT 1
-#define RADIO_SI5351_TX_WSPR false
+#define RADIO_SI5351_TX_WSPR true
 #define RADIO_SI5351_TX_WSPR_COUNT 1
 #define RADIO_SI5351_TX_FSQ false
 #define RADIO_SI5351_TX_FSQ_COUNT 1
@@ -491,7 +491,7 @@ Setting, measured RF output power, relative DC power draw
 #define RADIO_SI5351_TX_FREQUENCY_JT9        14085000UL    // Was: 14078700UL
 #define RADIO_SI5351_TX_FREQUENCY_JT65       14085000UL    // Was: 14078300UL
 #define RADIO_SI5351_TX_FREQUENCY_JT4        14085000UL    // Was: 14078500UL
-#define RADIO_SI5351_TX_FREQUENCY_WSPR       14085000UL    // Was: 14097200UL
+#define RADIO_SI5351_TX_FREQUENCY_WSPR       14097100UL    // 20 m WSPR (dial 14.0956 MHz + 1.5 kHz)
 #define RADIO_SI5351_TX_FREQUENCY_FSQ        3608350UL    // Was: 7105350UL     // Base freq is 1350 Hz higher than dial freq in USB
 #define RADIO_SI5351_TX_FREQUENCY_FT8        14085000UL    // Was: 14075000UL
 

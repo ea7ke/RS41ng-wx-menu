@@ -4,6 +4,7 @@
 #include "codecs/aprs/aprs_position.h"
 #include "codecs/aprs_9600/aprs_9600.h"
 #include "config.h"
+#include "runtime_config.h"
 #include "telemetry.h"
 #include "log.h"
 #include "radio_payload_aprs_position.h"
@@ -17,7 +18,7 @@ uint16_t radio_aprs_position_encode(uint8_t *payload, uint16_t length, telemetry
 
     log_debug("APRS packet: %s\n", aprs_packet);
 
-    return ax25_encode_packet_aprs(APRS_CALLSIGN, APRS_SSID, APRS_DESTINATION, APRS_DESTINATION_SSID, APRS_RELAYS,
+    return ax25_encode_packet_aprs(rt_config.callsign, runtime_config_ssid_char(rt_config.ssid), APRS_DESTINATION, APRS_DESTINATION_SSID, rt_config.path,
             (char *) aprs_packet, length, payload);
 }
 
@@ -35,8 +36,8 @@ uint16_t radio_aprs_9600_position_encode(uint8_t *payload, uint16_t length, tele
 
     log_debug("APRS packet: %s\n", aprs_packet);
 
-    uint16_t ax25_length = ax25_encode_packet_aprs(APRS_CALLSIGN, APRS_SSID, APRS_DESTINATION, APRS_DESTINATION_SSID,
-            APRS_RELAYS, (char *) aprs_packet, sizeof(ax25_frame), ax25_frame);
+    uint16_t ax25_length = ax25_encode_packet_aprs(rt_config.callsign, runtime_config_ssid_char(rt_config.ssid), APRS_DESTINATION, APRS_DESTINATION_SSID,
+            rt_config.path, (char *) aprs_packet, sizeof(ax25_frame), ax25_frame);
 
 
 

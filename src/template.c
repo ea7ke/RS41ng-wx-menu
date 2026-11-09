@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "utils.h"
 #include "config.h"
+#include "runtime_config.h"
 #include "strlcpy.h"
 #include "template.h"
 #include "codecs/aprs/aprs.h"
@@ -10,7 +11,7 @@ size_t template_replace(char *dest, size_t dest_len, char *src, telemetry_data *
     char temp[dest_len];
     char replacement[32];
 
-    strlcpy(replacement, CALLSIGN, sizeof(replacement));
+    strlcpy(replacement, rt_config.callsign, sizeof(replacement));
     strlcpy(temp, src, dest_len);
     str_replace(dest, dest_len, temp, "$cs", replacement);
 

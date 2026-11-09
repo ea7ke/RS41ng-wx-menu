@@ -43,6 +43,8 @@ set(COMMON_SOURCES
         ${SRC_DIR}/template.c
         ${SRC_DIR}/utils.c
         ${SRC_DIR}/strlcpy.c
+        ${SRC_DIR}/runtime_config.c
+        ${SRC_DIR}/runtime_menu.c
         ${SRC_DIR}/codecs/aprs/aprs.c
         ${SRC_DIR}/codecs/aprs/aprs_position.c
         ${SRC_DIR}/codecs/ax25/ax25.c
