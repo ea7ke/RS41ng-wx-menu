@@ -16,6 +16,7 @@
 #include "drivers/gps/gps_driver.h"
 #include "radio_internal.h"
 #include "landed.h"
+#include "runtime_config.h"
 #ifdef RS41
 #include "radio_si4032.h"
 #endif
@@ -611,7 +612,6 @@ radio_transmit_entry radio_transmit_schedule[] = {
 
 static volatile bool radio_module_initialized = false;
 
-const bool wspr_locator_fixed_enabled = WSPR_LOCATOR_FIXED_ENABLED;
 
 radio_transmit_entry *radio_current_transmit_entry = NULL;
 uint8_t radio_transmit_entry_count = 0;
@@ -848,14 +848,14 @@ static bool radio_start_transmit(radio_transmit_entry *entry)
             char locator[5];
             jtencode_mode_type jtencode_mode = radio_jtencode_mode_type_for(entry->data_mode);
 
-            if (wspr_locator_fixed_enabled) {
-                strlcpy(locator, WSPR_LOCATOR_FIXED, 4 + 1);
+            if (rt_config.wspr_locator[0] != '\0') {
+                strlcpy(locator, rt_config.wspr_locator, 4 + 1);
             } else {
                 strlcpy(locator, current_telemetry_data.locator, 4 + 1);
             }
 
             success = jtencode_encoder_new(&entry->fsk_encoder, sizeof(radio_current_symbol_data),
-                    radio_current_symbol_data, jtencode_mode, WSPR_CALLSIGN, locator, WSPR_DBM, FSQ_CALLSIGN_FROM);
+                    radio_current_symbol_data, jtencode_mode, rt_config.callsign, locator, rt_config.wspr_dbm, FSQ_CALLSIGN_FROM);
             if (!success) {
                 return false;
             }
@@ -1316,6 +1316,16 @@ void radio_init()
                 break;
             case RADIO_DATA_MODE_APRS_1200:
                 entry->messages = aprs_comment_templates;
+#ifdef RS41_RSM4x4
+                // Values chosen through the serial menu (wx-serial-menu modification)
+                entry->enabled = (rt_config.protocol != RT_PROTOCOL_WSPR);
+                entry->frequency = rt_config.aprs_frequency_hz;
+                entry->tx_power = rt_config.tx_power;
+                entry->time_sync_seconds = rt_config.aprs_interval_s;
+                entry->payload_encoder = (rt_config.mode == RT_MODE_WEATHER)
+                        ? &radio_aprs_weather_report_payload_encoder
+                        : &radio_aprs_position_payload_encoder;
+#endif
                 break;
             case RADIO_DATA_MODE_HORUS_V2:
             case RADIO_DATA_MODE_HORUS_V3:
@@ -1338,6 +1348,11 @@ void radio_init()
                 break;
             case RADIO_DATA_MODE_WSPR:
                 // No messages
+#ifdef RS41_RSM4x4
+                // Needs the external Si5351 (HF); the menu can disable it
+                entry->enabled = (rt_config.protocol != RT_PROTOCOL_APRS);
+                entry->frequency = rt_config.wspr_frequency_hz;
+#endif
                 break;
             default:
                 break;

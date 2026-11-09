@@ -20,9 +20,9 @@ int main(void)
 
     uint8_t aprs_packet[256];
     size_t aprs_length = aprs_generate_position(
-            aprs_packet, sizeof(aprs_packet), &telemetry, APRS_SYMBOL_TABLE, APRS_SYMBOL, false, APRS_COMMENT);
+            aprs_packet, sizeof(aprs_packet), &telemetry, APRS_SYMBOL_TABLE, APRS_SYMBOL, false, "https://amateur.sondehub.org/4FSKTEST");
 
-    // Zeroed telemetry + built-in config produce a deterministic APRS position report.
+    // Zeroed telemetry + fixed test call sign/comment (independent of the config.h defaults) produce a deterministic APRS position report.
     assert(aprs_length == 73);
     aprs_packet[aprs_length] = '\0';
     assert(strstr((char *) aprs_packet, "!0000.00S/00000.00WO000/000/A=000000") != NULL);
@@ -30,7 +30,7 @@ int main(void)
 
     uint8_t payload[256];
     memset(payload, 0, sizeof(payload));
-    size_t payload_length = ax25_encode_packet_aprs(APRS_CALLSIGN, APRS_SSID, APRS_DESTINATION, APRS_DESTINATION_SSID, APRS_RELAYS,
+    size_t payload_length = ax25_encode_packet_aprs("4FSKTEST", 'B', APRS_DESTINATION, APRS_DESTINATION_SSID, "",
             (char *) aprs_packet, aprs_length, payload);
 
     printf("Full payload length: %zu\n", payload_length);

@@ -3,6 +3,7 @@
 #include "codecs/ax25/ax25.h"
 #include "codecs/aprs/aprs_weather.h"
 #include "config.h"
+#include "runtime_config.h"
 #include "telemetry.h"
 #include "log.h"
 #include "radio_payload_aprs_weather.h"
@@ -15,7 +16,7 @@ uint16_t radio_aprs_weather_report_encode(uint8_t *payload, uint16_t length, tel
 
     log_debug("APRS packet: %s\n", aprs_packet);
 
-    return ax25_encode_packet_aprs(APRS_CALLSIGN, APRS_SSID, APRS_DESTINATION, APRS_DESTINATION_SSID, APRS_RELAYS,
+    return ax25_encode_packet_aprs(rt_config.callsign, runtime_config_ssid_char(rt_config.ssid), APRS_DESTINATION, APRS_DESTINATION_SSID, rt_config.path,
             (char *) aprs_packet, length, payload);
 }
 
