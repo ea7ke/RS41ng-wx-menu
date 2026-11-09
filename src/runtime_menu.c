@@ -194,6 +194,7 @@ static void print_help(outbuf *o)
             "  SET PATH <path|NONE>     digipeater path, e.g. WIDE1-1,WIDE2-1\r\n"
             "  SET MODE <WX|TRACKER>    weather station or position tracker\r\n"
             "  SET PROTO <APRS|WSPR|BOTH>  WSPR needs an external Si5351\r\n"
+            "  SET ALT <FT|M|OFF>       tracker altitude: feet (APRS /A=), metres (text) or none\r\n"
             "  SET POWER <0-7>          Si4032 output power (5 = 25 mW)\r\n"
             "  SET SENSOR <OFF|0x76|0x77>  external BME280/BMP280\r\n"
             "  SET WSPRFREQ <MHz>       WSPR transmit frequency (HF amateur bands)\r\n"
@@ -214,6 +215,7 @@ static void print_show(outbuf *o, const runtime_config *cfg)
     out_printf(o, "INTERVAL  %lu s\r\n", (unsigned long) cfg->aprs_interval_s);
     out_printf(o, "MODE      %s\r\n", cfg->mode == RT_MODE_WEATHER ? "WX" : "TRACKER");
     out_printf(o, "PROTO     %s\r\n", protocol_name(cfg->protocol));
+    out_printf(o, "ALT       %s\r\n", cfg->altitude_mode == RT_ALT_OFF ? "OFF" : (cfg->altitude_mode == RT_ALT_METERS ? "M" : "FT"));
     out_printf(o, "POWER     %u\r\n", (unsigned) cfg->tx_power);
     out_printf(o, "COMMENT   %s\r\n", cfg->comment);
     out_printf(o, "PATH      %s\r\n", cfg->path[0] ? cfg->path : "(none)");
@@ -326,6 +328,23 @@ static bool apply_setting(runtime_config *t, char *key, char *value, const char 
         }
         if (strcmp(value, "BOTH") == 0) {
             t->protocol = RT_PROTOCOL_BOTH;
+            return true;
+        }
+        return false;
+    }
+    if (strcmp(key, "ALT") == 0) {
+        *hint = "FT (feet, APRS standard), M (metres, as text) or OFF";
+        upcase(value);
+        if (strcmp(value, "FT") == 0 || strcmp(value, "FEET") == 0) {
+            t->altitude_mode = RT_ALT_FEET;
+            return true;
+        }
+        if (strcmp(value, "M") == 0 || strcmp(value, "METERS") == 0 || strcmp(value, "METRES") == 0) {
+            t->altitude_mode = RT_ALT_METERS;
+            return true;
+        }
+        if (strcmp(value, "OFF") == 0) {
+            t->altitude_mode = RT_ALT_OFF;
             return true;
         }
         return false;

@@ -4,6 +4,7 @@
 
 #include "aprs.h"
 #include "aprs_position.h"
+#include "runtime_config.h"
 
 size_t aprs_generate_position(uint8_t *payload, size_t length, telemetry_data *data,
         char symbol_table, char symbol, bool include_timestamp, char *comment)
@@ -28,9 +29,24 @@ size_t aprs_generate_position(uint8_t *payload, size_t length, telemetry_data *d
         strncpy(timestamp, "!", sizeof(timestamp));
     }
 
+    // Altitude format chosen at run time (wx-serial-menu): feet in the standard "/A=" field,
+    // metres as free text, or omitted
+    char altitude[24];
+    switch (rt_config.altitude_mode) {
+        case RT_ALT_OFF:
+            altitude[0] = '\0';
+            break;
+        case RT_ALT_METERS:
+            snprintf(altitude, sizeof(altitude), " %ldm", (long) (data->gps.altitude_mm / 1000));
+            break;
+        default:
+            snprintf(altitude, sizeof(altitude), "/A=%06d", (int) altitude_feet);
+            break;
+    }
+
     return snprintf((char *) payload,
             length,
-            ("%s%02d%02d.%02u%c%c%03d%02u.%02u%c%c%03d/%03d/A=%06d%s"),
+            ("%s%02d%02d.%02u%c%c%03d%02u.%02u%c%c%03d/%03d%s%s"),
             timestamp,
             abs(la_degrees), la_minutes, la_h_minutes,
             la_degrees > 0 ? 'N' : 'S',
@@ -40,7 +56,7 @@ size_t aprs_generate_position(uint8_t *payload, size_t length, telemetry_data *d
             symbol,
             heading_degrees,
             ground_speed_knots,
-            (int) altitude_feet,
+            altitude,
             comment
     );
 }

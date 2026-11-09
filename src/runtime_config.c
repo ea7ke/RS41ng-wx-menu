@@ -186,6 +186,9 @@ bool runtime_config_validate(const runtime_config *cfg)
     if (cfg->sensor_enabled > 1 || (cfg->sensor_address != 0x76 && cfg->sensor_address != 0x77)) {
         return false;
     }
+    if (cfg->altitude_mode > RT_ALT_METERS) {
+        return false;
+    }
     if (cfg->wspr_dbm > 60 || !runtime_config_wspr_frequency_ok(cfg->wspr_frequency_hz)) {
         return false;
     }

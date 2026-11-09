@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "runtime_config.h"
 #include "runtime_menu.h"
+#include "telemetry.h"
+#include "codecs/aprs/aprs_position.h"
 
 static int save_calls = 0;
 static runtime_config saved;
@@ -90,6 +92,12 @@ int main(void)
     assert(cfg.protocol == RT_PROTOCOL_WSPR);
     EXPECT_OK("SET PROTO aprs");
     assert(cfg.protocol == RT_PROTOCOL_APRS);
+    EXPECT_OK("SET ALT m");
+    assert(cfg.altitude_mode == RT_ALT_METERS);
+    EXPECT_OK("SET ALT off");
+    assert(cfg.altitude_mode == RT_ALT_OFF);
+    EXPECT_OK("SET ALT ft");
+    assert(cfg.altitude_mode == RT_ALT_FEET);
     EXPECT_OK("SET POWER 7");
     assert(cfg.tx_power == 7);
     EXPECT_OK("SET SENSOR 0x76");
@@ -124,6 +132,7 @@ int main(void)
     EXPECT_ERR("SET MODE foo");
     EXPECT_ERR("SET PROTO foo");
     EXPECT_ERR("SET POWER 8");
+    EXPECT_ERR("SET ALT yards");
     EXPECT_ERR("SET SENSOR 0x50");
     EXPECT_ERR("SET WSPRFREQ 432.5");
     EXPECT_ERR("SET WSPRFREQ 14.5");
@@ -183,6 +192,23 @@ int main(void)
     char tiny[16];
     run(&cfg, "help", tiny, sizeof(tiny));
     assert(strlen(tiny) < sizeof(tiny));
+
+    // Altitude formats in position packets (49 m = 160 ft)
+    telemetry_data telemetry;
+    memset(&telemetry, 0, sizeof(telemetry));
+    telemetry.gps.altitude_mm = 49000;
+    uint8_t packet[128];
+
+    rt_config.altitude_mode = RT_ALT_FEET;
+    aprs_generate_position(packet, sizeof(packet), &telemetry, '/', 'O', false, " WX");
+    assert(strstr((char *) packet, "/A=000160 WX") != NULL);
+    rt_config.altitude_mode = RT_ALT_METERS;
+    aprs_generate_position(packet, sizeof(packet), &telemetry, '/', 'O', false, " WX");
+    assert(strstr((char *) packet, "/A=") == NULL && strstr((char *) packet, " 49m WX") != NULL);
+    rt_config.altitude_mode = RT_ALT_OFF;
+    aprs_generate_position(packet, sizeof(packet), &telemetry, '/', 'O', false, " WX");
+    assert(strstr((char *) packet, "/A=") == NULL && strstr((char *) packet, "m WX") == NULL);
+    assert(strstr((char *) packet, "000/000 WX") != NULL);
 
     printf("runtime_menu_test OK\n");
     return 0;

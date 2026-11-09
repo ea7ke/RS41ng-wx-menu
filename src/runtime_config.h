@@ -43,6 +43,14 @@ typedef enum _rt_mode {
     RT_MODE_TRACKER = 1,    // APRS position report
 } rt_mode;
 
+// Altitude in APRS position (tracker) packets. Value 0 is the original behaviour, so
+// configurations stored by earlier versions (this byte was reserved and zero) keep working.
+typedef enum _rt_altitude {
+    RT_ALT_FEET = 0,        // standard APRS "/A=" field, in feet
+    RT_ALT_OFF = 1,         // no altitude
+    RT_ALT_METERS = 2,      // free text " 49m" before the comment (not machine readable by APRS clients)
+} rt_altitude;
+
 /**
  * Stored layout. No implicit padding (checked at compile time), 8-byte multiple so that it
  * can be written with the STM32L4 double-word flash programming.
@@ -67,7 +75,7 @@ typedef struct _runtime_config {
     uint8_t sensor_enabled;        // external BMP280/BME280
     uint8_t sensor_address;        // 0x76 or 0x77
     uint8_t wspr_dbm;
-    uint8_t reserved0;
+    uint8_t altitude_mode;         // rt_altitude
     uint8_t reserved_pad[3];
 
     uint32_t wspr_frequency_hz;

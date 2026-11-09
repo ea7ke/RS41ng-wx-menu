@@ -78,6 +78,7 @@ Solo para la placa RSM4x4 (STM32L412). Al arrancar, el firmware abre una **venta
 | `SET PATH <ruta\|NONE>` | ruta de digipetidores, p. ej. `WIDE1-1,WIDE2-1` |
 | `SET MODE <WX\|TRACKER>` | estación meteorológica o tracker de posición |
 | `SET PROTO <APRS\|WSPR\|BOTH>` | protocolo (WSPR necesita un Si5351 externo, ver abajo) |
+| `SET ALT <FT\|M\|OFF>` | altitud en modo tracker: pies (campo estándar `/A=`), metros (texto, p. ej. ` 49m`) o ninguna |
 | `SET POWER <0-7>` | potencia del Si4032 (5 ≈ 25 mW) |
 | `SET SENSOR <OFF\|0x76\|0x77>` | sensor BME280/BMP280 externo |
 | `SET WSPRFREQ <MHz>` | frecuencia WSPR (solo bandas de HF de aficionado) |
