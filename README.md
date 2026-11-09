@@ -10,6 +10,26 @@ Cambios respecto al original:
 Hardware probado: Vaisala RS41-SGP (RSM4x4, STM32L412).
 Este proyecto mantiene la licencia del original; véase LICENSE.
 
+## Compilar y flashear (Windows, RSM4x4)
+
+Requisitos: Docker Desktop en marcha, imagen `rs41ng_compiler` (`docker build -t rs41ng_compiler .` una sola vez), programador ST-Link V2 y OpenOCD. La sonda debe tener la protección de lectura (RDP) desactivada; véase la sección de desbloqueo del README original más abajo.
+
+Compilar con la configuración de `src/config.h` (en PowerShell, desde la carpeta del proyecto). Se llama a Docker directamente porque `build-firmware.bat` parte el argumento `-DRS41_RSM4X4=1` por el signo `=`:
+
+```powershell
+docker run --rm -it -v "${PWD}:/usr/local/src/RS41ng" -e "CONFIG_FILE=config.yaml" rs41ng_compiler "-DRS41_RSM4X4=1"
+```
+
+Si no existe `config.yaml`, se usa `config.h`/`config.c`. El resultado es `build/src/RS41ng.elf`. Los scripts `.sh` deben tener finales de línea LF (`git config core.autocrlf false`).
+
+Flashear:
+
+```powershell
+openocd -f interface/stlink.cfg -f target/stm32l4x.cfg -c "program build/src/RS41ng.elf verify reset exit"
+```
+
+Estado: la transmisión APRS meteo está probada en hardware; el menú serie está pendiente de probar.
+
 ## Menú de configuración por puerto serie (wx-serial-menu)
 
 Solo para la placa RSM4x4 (STM32L412). Al arrancar, el firmware abre una **ventana de 15 s** por el puerto serie; si no llega ningún byte, arranca con la configuración guardada (o con los valores de `config.h` si no hay nada guardado). Cualquier carácter recibido reinicia el temporizador hasta que se escribe `EXIT`.
